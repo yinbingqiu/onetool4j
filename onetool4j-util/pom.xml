@@ -9,16 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>onetool4j-exception</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>io.github.yinbingqiu.onetool4j</groupId>
-            <artifactId>onetool4j-util</artifactId>
-            <version>${onetool4j.version}</version>
-        </dependency>
-
-    </dependencies>
+    <artifactId>onetool4j-util</artifactId>
 
 
 </project>
