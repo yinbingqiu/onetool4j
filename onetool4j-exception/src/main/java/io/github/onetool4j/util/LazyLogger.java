@@ -1,11 +1,14 @@
 package io.github.onetool4j.util;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import io.github.onetool4j.exception.Asserts;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 2024/1/25 13:56
@@ -91,6 +94,12 @@ public class LazyLogger {
      */
     private Method isErrorEnabledMethod;
 
+    private static final Pattern pattern = Pattern.compile("\\{ *\\}");
+    private static final Set<String> excludeClassList = new HashSet<>(Arrays.asList(
+            LazyLogger.class.getName()
+            , Asserts.class.getName()));
+    private int countThreshold = Math.min(Integer.parseInt(System.getProperty("exception.supportSummary.count.threshold", "10")), 10000);
+
     /**
      * 获取LazyLogger实例
      */
@@ -132,6 +141,8 @@ public class LazyLogger {
         this.wrapped = log;
         this.serializableType = serializableType;
     }
+    private int durationThreshold = Math.min(Integer.parseInt(System.getProperty("exception.supportSummary.seconds.threshold", "60")) * 1000, (int) Duration.ofDays(1).toMillis());
+    private boolean supportSummary = true;
 
     /**
      * 延迟执行
@@ -165,7 +176,12 @@ public class LazyLogger {
         return new LazyLogger(log, serializableType);
     }
 
-
+    /**
+     * fastjson序列化
+     *
+     * @param argument 参数
+     * @return 序列化后的字符串
+     */
     private String fastjsonSerialize(Object argument) {
         try {
             return (String) fastjsonMethod.invoke(null, argument);
@@ -174,6 +190,38 @@ public class LazyLogger {
         }
     }
 
+    public LazyLogger summaryDisable() {
+        this.supportSummary = false;
+        return this;
+    }
+
+    /**
+     * 反射调用方法
+     *
+     * @param method 方法
+     * @param args   参数
+     * @return 返回值
+     */
+    private Object invoke(Method method, Object... args) {
+        try {
+            return method.invoke(wrapped, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public LazyLogger summary(int countThreshold, Duration durationThreshold) {
+        this.countThreshold = countThreshold;
+        this.durationThreshold = Math.min((int) durationThreshold.toMillis(), (int) Duration.ofDays(1).toMillis());
+        return this;
+    }
+
+    /**
+     * 获取参数
+     *
+     * @param arguments 参数
+     * @return 参数
+     */
     private Object[] getArgs(Object... arguments) {
         if (arguments == null || arguments.length == 0) {
             return null;
@@ -181,31 +229,33 @@ public class LazyLogger {
         Object[] newArgs = new Object[arguments.length];
         for (int i = 0; i < newArgs.length; i++) {
             Object argument = arguments[i];
+            if (argument == null || argument instanceof String) {
+                newArgs[i] = argument;
+                continue;
+            }
 
+            Object realArgument = argument;
+            if (argument instanceof LazyExecutor) {
+                realArgument = ((LazyExecutor) argument).supplier.get();
+            } else if (argument instanceof Supplier) {
+                realArgument = ((Supplier<?>) argument).get();
+            }
 
-            // 获取真正的值
-            Object realArgument = argument == null ? null
-                    : argument instanceof LazyExecutor ? ((LazyExecutor) argument).supplier.get()
-                    : argument instanceof Supplier ? ((Supplier<?>) argument).get()
-                    : argument instanceof Throwable ? new WrappedThrowable((Throwable) argument)
-                    : argument;
+            if (realArgument == null
+                    || realArgument instanceof String
+                    || realArgument instanceof Throwable) {
+                newArgs[i] = realArgument;
+                continue;
+            }
 
-            newArgs[i] = realArgument == null ? null
-                    : realArgument instanceof String ? realArgument
-                    : realArgument instanceof Throwable ? realArgument
-                    : SerializableType.FASTJSON.equals(serializableType) ? fastjsonSerialize(realArgument)
-                    : realArgument;
+            if (SerializableType.FASTJSON.equals(serializableType)) {
+                newArgs[i] = fastjsonSerialize(realArgument);
+            } else {
+                newArgs[i] = realArgument;
+            }
         }
 
         return newArgs;
-    }
-
-    private Object invoke(Method method, Object... args) {
-        try {
-            return method.invoke(wrapped, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -220,7 +270,35 @@ public class LazyLogger {
         if (!(Boolean) invoke(isTraceEnabledMethod)) {
             return;
         }
-        invoke(traceMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(traceMethod, getFormat(format, realArgs), realArgs);
+    }
+
+    private String getFormat(String format, Object[] realArgs) {
+        if (!supportSummary
+                || realArgs == null || realArgs.length == 0
+                || format == null || format.isEmpty()) {
+            return format;
+        }
+
+        Matcher matcher = pattern.matcher(format);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+
+        if (count + 1 != realArgs.length
+                || !(realArgs[realArgs.length - 1] instanceof Throwable)) {
+            return format;
+        }
+
+        Throwable throwable = (Throwable) realArgs[realArgs.length - 1];
+        realArgs[realArgs.length - 1] = null;
+        return format + "\n" + SummaryExceptions.getFullStackTrace(throwable
+                , wrapped
+                , excludeClassList
+                , countThreshold
+                , durationThreshold);
     }
 
     /**
@@ -235,7 +313,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isTraceEnabledMethod)) {
             return;
         }
-        invoke(traceMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(traceMethod, getFormat(format, realArgs), realArgs);
     }
 
     /**
@@ -249,7 +328,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isDebugEnabledMethod)) {
             return;
         }
-        invoke(debugMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(debugMethod, getFormat(format, realArgs), realArgs);
     }
 
 
@@ -264,7 +344,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isDebugEnabledMethod)) {
             return;
         }
-        invoke(debugMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(debugMethod, getFormat(format, realArgs), realArgs);
     }
 
     /**
@@ -278,7 +359,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isInfoEnabledMethod)) {
             return;
         }
-        invoke(infoMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(infoMethod, getFormat(format, realArgs), realArgs);
     }
 
     /**
@@ -292,7 +374,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isInfoEnabledMethod)) {
             return;
         }
-        invoke(infoMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(infoMethod, getFormat(format, realArgs), realArgs);
     }
 
     /**
@@ -306,7 +389,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isWarnEnabledMethod)) {
             return;
         }
-        invoke(warnMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(warnMethod, getFormat(format, realArgs), realArgs);
     }
 
     /**
@@ -320,7 +404,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isWarnEnabledMethod)) {
             return;
         }
-        invoke(warnMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(warnMethod, getFormat(format, realArgs), realArgs);
     }
 
     /**
@@ -334,7 +419,8 @@ public class LazyLogger {
         if (!(Boolean) invoke(isErrorEnabledMethod)) {
             return;
         }
-        invoke(errorMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(errorMethod, getFormat(format, realArgs), realArgs);
     }
 
     /**
@@ -348,77 +434,10 @@ public class LazyLogger {
         if (!(Boolean) invoke(isErrorEnabledMethod)) {
             return;
         }
-        invoke(errorMethod, format, getArgs(arguments));
+        Object[] realArgs = getArgs(arguments);
+        invoke(errorMethod, getFormat(format, realArgs), realArgs);
     }
 
-
-    private static class WrappedThrowable extends Throwable {
-        private static final Set<String> EXCLUDE_KEYWORDS = new HashSet<>(Arrays.asList(
-                LazyLogger.class.getName()
-        ));
-        private Throwable throwable;
-        /**
-         * 相对 originStackTraces 去掉了部分onetool异常堆栈，保持日志里面堆栈整洁
-         */
-        private StackTraceElement[] cachedStackTraces;
-        /**
-         * 原始堆栈
-         */
-        private StackTraceElement[] originStackTraces;
-
-        WrappedThrowable(Throwable throwable) {
-            this.throwable = throwable;
-        }
-
-        @Override
-        public void printStackTrace() {
-            throwable.printStackTrace();
-        }
-
-        @Override
-        public void printStackTrace(PrintWriter s) {
-            throwable.printStackTrace(s);
-        }
-
-        @Override
-        public void printStackTrace(PrintStream s) {
-            throwable.printStackTrace(s);
-        }
-
-        @Override
-        public String getMessage() {
-            return throwable.getMessage();
-        }
-
-        @Override
-        public String getLocalizedMessage() {
-            return throwable.getLocalizedMessage();
-        }
-
-        @Override
-        public synchronized Throwable getCause() {
-            return throwable.getCause();
-        }
-
-        @Override
-        public String toString() {
-            return throwable.toString();
-        }
-
-        @Override
-        public StackTraceElement[] getStackTrace() {
-            if (cachedStackTraces == null) {
-                StackTraceElement[] stackTrace = throwable.getStackTrace();
-                this.originStackTraces = stackTrace;
-                cachedStackTraces = (stackTrace != null && stackTrace.length > 0)
-                        ? Arrays.stream(stackTrace)
-                        .filter(s -> !EXCLUDE_KEYWORDS.contains(s.getClassName()))
-                        .toArray(StackTraceElement[]::new)
-                        : new StackTraceElement[0];
-            }
-            return cachedStackTraces;
-        }
-    }
 
     public enum SerializableType {
         FASTJSON, RAW

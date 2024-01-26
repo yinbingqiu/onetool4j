@@ -6,7 +6,7 @@
 
     <groupId>io.github.yinbingqiu.onetool4j</groupId>
     <artifactId>onetool4j</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
     <modules>
         <module>onetool4j-exception</module>
@@ -14,12 +14,15 @@
         <module>onetool4j-util</module>
     </modules>
 
+    <name>onetool4j</name>
+    <description>一个开源的java工具包集合</description>
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <onetool4j.version>1.0.0</onetool4j.version>
+        <onetool4j.version>1.0.3</onetool4j.version>
         <log4j2.version>2.22.1</log4j2.version>
     </properties>
 
@@ -137,9 +140,10 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <encoding>utf-8</encoding>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
+                <version>3.8.1</version>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>

@@ -6,7 +6,6 @@ import io.github.onetool4j.util.LazyLogger;
 import junit.framework.TestCase;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.Random;
 
 public class BizExceptionTest extends TestCase {
@@ -16,6 +15,7 @@ public class BizExceptionTest extends TestCase {
     public void testLogPrintStack() {
 
         try {
+
             mergeBizException();
         } catch (Exception e) {
             logger.info("test info abc a={} b={} c={} "
@@ -31,8 +31,7 @@ public class BizExceptionTest extends TestCase {
         try {
             inner1();
         } catch (Exception e) {
-            throw BizException.ofMerge(ErrorCode.ofFail("json 解析异常"), e)
-                    .mergeThreshold(11, Duration.ofMinutes(1));
+            throw BizException.of(ErrorCode.ofFail("json 解析异常"), e);
         }
     }
 

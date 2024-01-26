@@ -32,7 +32,7 @@ public final class Asserts {
      */
     public static void isTrue(boolean expression, String message) {
         if (!expression) {
-            throw BizException.ofMerge(ErrorConstant.PARAMETER_ERROR.code, message);
+            throw BizException.of(ErrorConstant.PARAMETER_ERROR.code, message);
         }
     }
 
@@ -44,7 +44,7 @@ public final class Asserts {
      */
     public static void isTrue(boolean expression, ErrorCode errorCode) {
         if (!expression) {
-            throw BizException.ofMerge(errorCode);
+            throw BizException.of(errorCode);
         }
     }
 
@@ -56,7 +56,7 @@ public final class Asserts {
      */
     public static void isTrue(boolean expression, Supplier<String> messageSupplier) {
         if (!expression) {
-            throw BizException.ofMerge(ErrorConstant.PARAMETER_ERROR.code, messageSupplier.get());
+            throw BizException.of(ErrorConstant.PARAMETER_ERROR.code, messageSupplier.get());
         }
     }
 
