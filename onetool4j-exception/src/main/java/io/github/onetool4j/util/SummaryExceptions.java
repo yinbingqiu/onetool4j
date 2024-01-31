@@ -188,23 +188,38 @@ public abstract class SummaryExceptions extends RuntimeException {
             cause = cause.getCause();
         }
 
-        List<StackTrace> list = new ArrayList<>();
+        List<StacktraceTuple> list = new ArrayList<>();
         for (Throwable throwable : throwables) {
             StackTraceElement[] stackTrace = throwable.getStackTrace();
-            if (stackTrace == null || stackTrace.length == 0) {
+            int length = stackTrace.length;
+            if (stackTrace == null || length == 0) {
                 continue;
             }
 
-            StackTrace stack = new StackTrace();
-            list.add(stack);
-            for (StackTraceElement stackTraceElement : stackTrace) {
+            StackTrace top = null;
+            for (int i = 0; i < length; i++) {
+                StackTraceElement stackTraceElement = stackTrace[i];
                 if (!excludeClassList.contains(stackTraceElement.getClassName())) {
-                    stack.className = stackTraceElement.getClassName();
-                    stack.methodName = stackTraceElement.getMethodName();
-                    stack.lineNumber = stackTraceElement.getLineNumber();
+                    top = new StackTrace();
+                    top.className = stackTraceElement.getClassName();
+                    top.methodName = stackTraceElement.getMethodName();
+                    top.lineNumber = stackTraceElement.getLineNumber();
                     break;
                 }
             }
+            StackTrace buttom = null;
+            for (int i = length - 1; i >= 1; i--) {
+                StackTraceElement stackTraceElement = stackTrace[i];
+                if (!excludeClassList.contains(stackTraceElement.getClassName())) {
+                    buttom = new StackTrace();
+                    buttom.className = stackTraceElement.getClassName();
+                    buttom.methodName = stackTraceElement.getMethodName();
+                    buttom.lineNumber = stackTraceElement.getLineNumber();
+                    break;
+                }
+            }
+
+            list.add(new StacktraceTuple(top, buttom));
         }
 
         return new SummaryKey(e, list);
@@ -296,22 +311,71 @@ public abstract class SummaryExceptions extends RuntimeException {
         }
     }
 
+    private static boolean nullEquals(Object obj1, Object obj2) {
+        if (obj1 == obj2) {
+            return true;
+        }
+
+        if (obj1 == null || obj2 == null) {
+            return false;
+        }
+
+        return obj1.equals(obj2);
+    }
+
+    private static class StacktraceTuple {
+        /**
+         * 栈顶
+         */
+        StackTrace topStacktrace;
+        /**
+         * 栈底
+         */
+        StackTrace buttomStacktrace;
+
+        public StacktraceTuple(StackTrace topStacktrace, StackTrace buttomStacktrace) {
+            this.topStacktrace = topStacktrace;
+            this.buttomStacktrace = buttomStacktrace;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || !(obj instanceof StacktraceTuple)) {
+                return false;
+            }
+            StacktraceTuple other = (StacktraceTuple) obj;
+            return nullEquals(topStacktrace, other.topStacktrace)
+                    && nullEquals(buttomStacktrace, other.buttomStacktrace);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(topStacktrace, buttomStacktrace);
+        }
+    }
+
     /**
      * MergeStats
      */
     private static class SummaryKey {
         public Throwable throwable;
 
-        public List<StackTrace> stackTraceList;
+        public List<StacktraceTuple> stacktraceTuples;
 
-        public SummaryKey(Throwable throwable, List<StackTrace> stackTraceList) {
+        public SummaryKey(Throwable throwable, List<StacktraceTuple> stacktraceTuples) {
             this.throwable = throwable;
-            this.stackTraceList = stackTraceList;
+            this.stacktraceTuples = stacktraceTuples;
         }
 
 
         @Override
         public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
             if (obj == null || !(obj instanceof SummaryKey)) {
                 return false;
             }
@@ -321,13 +385,13 @@ public abstract class SummaryExceptions extends RuntimeException {
             }
 
             return Objects.equals(throwable, other.throwable)
-                    || Objects.equals(stackTraceList, other.stackTraceList);
+                    || nullEquals(stacktraceTuples, other.stacktraceTuples);
         }
 
 
         @Override
         public int hashCode() {
-            return Objects.hash(stackTraceList);
+            return Objects.hash(stacktraceTuples);
         }
     }
 

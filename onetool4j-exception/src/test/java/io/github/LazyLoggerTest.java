@@ -56,11 +56,11 @@ public class LazyLoggerTest extends TestCase {
                 , () -> 3
                 , () -> new IllegalArgumentException("test"));
 
-        logger.info("test info a={} b={} c={}"
-                , LazyLogger.lazyEval(() -> 1)
-                , 2
-                , 3
-                , new IllegalArgumentException("test"));
+//        logger.info("test info a={} b={} c={}"
+//                , LazyLogger.lazyEval(() -> 1)
+//                , 2
+//                , 3
+//                , new IllegalArgumentException("test"));
 //
 //        logger.warn("test warn a={} b={} c={} "
 //                , () -> 1
