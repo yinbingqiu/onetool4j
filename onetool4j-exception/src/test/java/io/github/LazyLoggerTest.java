@@ -1,6 +1,6 @@
 package io.github;
 
-import io.github.onetool4j.util.LazyLogger;
+import io.onetool4j.util.LazyLogger;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
