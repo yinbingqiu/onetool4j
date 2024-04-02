@@ -1,13 +1,12 @@
 package io.onetool4j.ddd.handler;
 
-import io.onetool4j.ddd.dto.Command;
 
 /**
  * 命令处理器
  *
  * @author admin
  */
-public abstract class CommandHandler<REQ extends Command, REP> extends GenericHandler<REQ, REP> {
+public abstract class CommandHandler<REQ, REP> extends GenericHandler<REQ, REP> {
     /**
      * 处理命令
      *

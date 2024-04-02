@@ -5,7 +5,7 @@ package io.onetool4j.ddd.dto;
  *
  * @author admin
  */
-public abstract class PageQuery extends Query {
+public abstract class PageQuery {
     /**
      * serialVersionUID
      */

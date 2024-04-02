@@ -35,7 +35,7 @@ public class PageDTO<T> {
     /**
      * 总记录数
      */
-    int totalCnt = 0;
+    int totalCount = 0;
     /**
      * 数据
      */
@@ -85,7 +85,7 @@ public class PageDTO<T> {
         pageDTO.pageSize = pageSize;
         pageDTO.currentPage = currentPage;
         pageDTO.data = data;
-        pageDTO.totalCnt = totalCnt;
+        pageDTO.totalCount = totalCnt;
         return pageDTO;
     }
 
@@ -113,7 +113,7 @@ public class PageDTO<T> {
         pageDTO.pageSize = query.getPageSize();
         pageDTO.currentPage = query.getPageNum();
         pageDTO.data = data;
-        pageDTO.totalCnt = totalCnt;
+        pageDTO.totalCount = totalCnt;
         return pageDTO;
     }
 
@@ -150,7 +150,7 @@ public class PageDTO<T> {
      */
     public static <T, R> PageDTO<R> copyAndConvert(Object originPageDTO, Function<List<T>, List<R>> convert) {
         PageDTO<T> copyPageDTO = copy(originPageDTO);
-        return of(convert.apply(copyPageDTO.getData()), copyPageDTO.getPageSize(), copyPageDTO.getCurrentPage(), copyPageDTO.getTotalCnt());
+        return of(convert.apply(copyPageDTO.getData()), copyPageDTO.getPageSize(), copyPageDTO.getCurrentPage(), copyPageDTO.getTotalCount());
     }
 
     /**
@@ -228,8 +228,8 @@ public class PageDTO<T> {
      *
      * @return int
      */
-    public int getTotalCnt() {
-        return totalCnt;
+    public int getTotalCount() {
+        return totalCount;
     }
 
     /**
@@ -238,7 +238,7 @@ public class PageDTO<T> {
      * @return int
      */
     public int getTotalPages() {
-        return totalCnt / pageSize + 1;
+        return totalCount / pageSize + 1;
     }
 
     /**
