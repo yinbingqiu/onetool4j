@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.shizhuang.onetool4j</groupId>
         <artifactId>onetool4j</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.6</version>
     </parent>
 
     <artifactId>onetool4j-ddd</artifactId>

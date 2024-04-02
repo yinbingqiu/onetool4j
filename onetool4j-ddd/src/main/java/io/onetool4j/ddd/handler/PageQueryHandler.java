@@ -1,5 +1,6 @@
 package io.onetool4j.ddd.handler;
 
+import io.onetool4j.ddd.dto.PageDTO;
 import io.onetool4j.ddd.dto.PageQuery;
 
 /**
@@ -7,12 +8,12 @@ import io.onetool4j.ddd.dto.PageQuery;
  *
  * @author admin
  */
-public abstract class PageQueryHandler<REQ extends PageQuery, REP> extends GenericHandler<REQ, REP> {
+public abstract class PageQueryHandler<REQ extends PageQuery, REP> extends GenericHandler<REQ, PageDTO<REP>> {
 
     @Override
-    REP doHandle(REQ request) {
+    PageDTO<REP> doHandle(REQ request) {
         return query(request);
     }
 
-    protected abstract REP query(REQ query);
+    protected abstract PageDTO<REP> query(REQ query);
 }
