@@ -6,10 +6,18 @@
     <parent>
         <groupId>com.shizhuang.onetool4j</groupId>
         <artifactId>onetool4j</artifactId>
-        <version>1.0.6</version>
+        <version>1.0.9</version>
     </parent>
 
     <artifactId>onetool4j-util</artifactId>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

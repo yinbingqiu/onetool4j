@@ -11,15 +11,17 @@ import io.onetool4j.util.LazyLogger;
  * @author admin
  */
 public abstract class GenericHandler<REQ, REP> {
+
     private final HandlerConfig handlerConfig;
     private final LazyLogger log;
+
 
     /**
      * 构造函数
      */
     public GenericHandler() {
         this.handlerConfig = getHandlerConfig();
-        this.log = LazyLogger.getLogger(this.getClass(), handlerConfig.getSerializableType());
+        this.log = LazyLogger.getLogger(org.slf4j.LoggerFactory.getLogger(this.getClass()), handlerConfig.getSerializableType());
     }
 
     /**
