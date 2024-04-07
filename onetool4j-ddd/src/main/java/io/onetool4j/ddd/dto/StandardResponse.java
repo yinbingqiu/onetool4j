@@ -20,19 +20,20 @@ public class StandardResponse<T> extends DTO {
     /**
      * 错误码
      */
-    private String code;
+    private String errCode;
     /**
      * 错误信息
      */
-    private String message;
+    private String errMessage;
     /**
      * 返回数据
      */
     private T data;
+
     /**
      * 构造方法隐藏
      */
-    private StandardResponse() {
+    public StandardResponse() {
     }
 
     /**
@@ -118,45 +119,40 @@ public class StandardResponse<T> extends DTO {
         StandardResponse<T> response = new StandardResponse<>();
         response.data = data;
         response.success = success;
-        response.code = code;
-        response.message = message;
+        response.errCode = code;
+        response.errMessage = message;
         return response;
     }
 
-    /**
-     * 通用异常,规范：是否成功
-     *
-     * @return boolean
-     */
     public boolean isSuccess() {
         return success;
     }
 
-    /**
-     * 通用异常,规范：返回码
-     *
-     * @return String
-     */
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
     public String getErrCode() {
-        return code;
+        return errCode;
     }
 
-    /**
-     * 通用异常,规范：返回信息
-     *
-     * @return String
-     */
+    public void setErrCode(String errCode) {
+        this.errCode = errCode;
+    }
+
     public String getErrMessage() {
-        return message;
+        return errMessage;
     }
 
-    /**
-     * 通用异常,规范：返回数据
-     *
-     * @return T返回数据
-     */
+    public void setErrMessage(String errMessage) {
+        this.errMessage = errMessage;
+    }
+
     public T getData() {
         return data;
     }
 
+    public void setData(T data) {
+        this.data = data;
+    }
 }
