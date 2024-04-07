@@ -44,7 +44,7 @@ public class PageDTO<T> {
     /**
      * 构造方法隐藏
      */
-    private PageDTO() {
+    public PageDTO() {
     }
 
     /**
@@ -230,6 +230,23 @@ public class PageDTO<T> {
      */
     public int getTotal() {
         return total;
+    }
+
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public void setCurrent(int current) {
+        this.current = current;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public void setRecords(List<T> records) {
+        this.records = records;
     }
 
     /**
