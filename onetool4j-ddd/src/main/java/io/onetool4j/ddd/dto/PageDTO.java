@@ -27,19 +27,19 @@ public class PageDTO<T> {
     /**
      * 每页记录数
      */
-    int pageSize = 10;
+    int size = 10;
     /**
      * 当前页码
      */
-    int currentPage = 1;
+    int current = 1;
     /**
      * 总记录数
      */
-    int totalCount = 0;
+    int total = 0;
     /**
      * 数据
      */
-    List<T> data;
+    List<T> records;
 
     /**
      * 构造方法隐藏
@@ -82,10 +82,10 @@ public class PageDTO<T> {
      */
     public static <T> PageDTO<T> of(List<T> data, int pageSize, int currentPage, int totalCnt) {
         PageDTO<T> pageDTO = new PageDTO<>();
-        pageDTO.pageSize = pageSize;
-        pageDTO.currentPage = currentPage;
-        pageDTO.data = data;
-        pageDTO.totalCount = totalCnt;
+        pageDTO.size = pageSize;
+        pageDTO.current = currentPage;
+        pageDTO.records = data;
+        pageDTO.total = totalCnt;
         return pageDTO;
     }
 
@@ -110,10 +110,10 @@ public class PageDTO<T> {
      */
     public static <T> PageDTO<T> of(List<T> data, PageQuery query, int totalCnt) {
         PageDTO<T> pageDTO = new PageDTO<>();
-        pageDTO.pageSize = query.getPageSize();
-        pageDTO.currentPage = query.getPageNum();
-        pageDTO.data = data;
-        pageDTO.totalCount = totalCnt;
+        pageDTO.size = query.getPageSize();
+        pageDTO.current = query.getPageNum();
+        pageDTO.records = data;
+        pageDTO.total = totalCnt;
         return pageDTO;
     }
 
@@ -150,7 +150,7 @@ public class PageDTO<T> {
      */
     public static <T, R> PageDTO<R> copyAndConvert(Object originPageDTO, Function<List<T>, List<R>> convert) {
         PageDTO<T> copyPageDTO = copy(originPageDTO);
-        return of(convert.apply(copyPageDTO.getData()), copyPageDTO.getPageSize(), copyPageDTO.getCurrentPage(), copyPageDTO.getTotalCount());
+        return of(convert.apply(copyPageDTO.getRecords()), copyPageDTO.getSize(), copyPageDTO.getCurrent(), copyPageDTO.getTotal());
     }
 
     /**
@@ -183,8 +183,8 @@ public class PageDTO<T> {
      *
      * @return int
      */
-    public int getPageSize() {
-        return pageSize;
+    public int getSize() {
+        return size;
     }
 
     /**
@@ -192,8 +192,8 @@ public class PageDTO<T> {
      *
      * @return int
      */
-    public int getCurrentPage() {
-        return currentPage;
+    public int getCurrent() {
+        return current;
     }
 
     /**
@@ -202,7 +202,7 @@ public class PageDTO<T> {
      * @return int
      */
     public int getNextPage() {
-        return currentPage + 1;
+        return current + 1;
     }
 
     /**
@@ -211,7 +211,7 @@ public class PageDTO<T> {
      * @return int
      */
     public int getPreviousPage() {
-        return currentPage <= 1 ? 1 : currentPage - 1;
+        return current <= 1 ? 1 : current - 1;
     }
 
     /**
@@ -219,8 +219,8 @@ public class PageDTO<T> {
      *
      * @return data
      */
-    public List<T> getData() {
-        return data;
+    public List<T> getRecords() {
+        return records;
     }
 
     /**
@@ -228,8 +228,8 @@ public class PageDTO<T> {
      *
      * @return int
      */
-    public int getTotalCount() {
-        return totalCount;
+    public int getTotal() {
+        return total;
     }
 
     /**
@@ -238,7 +238,7 @@ public class PageDTO<T> {
      * @return int
      */
     public int getTotalPages() {
-        return totalCount / pageSize + 1;
+        return total / size + 1;
     }
 
     /**
