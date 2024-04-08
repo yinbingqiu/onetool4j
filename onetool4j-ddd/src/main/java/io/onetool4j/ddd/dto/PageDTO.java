@@ -3,11 +3,13 @@ package io.onetool4j.ddd.dto;
 import io.onetool4j.util.Reflections;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 标准分页对象
@@ -131,7 +133,10 @@ public class PageDTO<T> {
             throw new IllegalArgumentException("不是标准分页对象XxxPageDTO(records,size,total,current)");
         }
         try {
-            return of((List<T>) normalPageDTO.records.get(originPageDTO), Integer.parseInt(Objects.toString(normalPageDTO.pageSize.get(originPageDTO))), Integer.parseInt(Objects.toString(normalPageDTO.currentPage.get(originPageDTO))), Integer.parseInt(Objects.toString(normalPageDTO.totalCount.get(originPageDTO))));
+            return of((List<T>) normalPageDTO.records.get(originPageDTO)
+                    , Integer.parseInt(Objects.toString(normalPageDTO.pageSize.get(originPageDTO)))
+                    , Integer.parseInt(Objects.toString(normalPageDTO.currentPage.get(originPageDTO)))
+                    , Integer.parseInt(Objects.toString(normalPageDTO.totalCount.get(originPageDTO))));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -148,9 +153,18 @@ public class PageDTO<T> {
      * @param <R>           转换后的分页对象的Data类型
      * @return 复制并转换后的分页对象
      */
-    public static <T, R> PageDTO<R> copyAndConvert(Object originPageDTO, Function<List<T>, List<R>> convert) {
+    public static <T, R> PageDTO<R> copyAndConvert(Object originPageDTO, Function<T, R> convert) {
         PageDTO<T> copyPageDTO = copy(originPageDTO);
-        return of(convert.apply(copyPageDTO.getRecords()), copyPageDTO.getSize(), copyPageDTO.getCurrent(), copyPageDTO.getTotal());
+        List<R> recordList = null;
+        if (copyPageDTO.getRecords() == null || copyPageDTO.getRecords().isEmpty()) {
+            recordList = new ArrayList<>();
+        } else {
+            recordList = copyPageDTO.getRecords()
+                    .stream()
+                    .map(convert)
+                    .collect(Collectors.toList());
+        }
+        return of(recordList, copyPageDTO.getSize(), copyPageDTO.getCurrent(), copyPageDTO.getTotal());
     }
 
     /**
@@ -202,7 +216,7 @@ public class PageDTO<T> {
      * @return int
      */
     public int getNextPage() {
-        return current + 1;
+        return current == getPages() ? current : current + 1;
     }
 
     /**
@@ -254,8 +268,8 @@ public class PageDTO<T> {
      *
      * @return int
      */
-    public int getTotalPages() {
-        return total / size + 1;
+    public int getPages() {
+        return total == 0 ? 0 : total / size + 1;
     }
 
     /**

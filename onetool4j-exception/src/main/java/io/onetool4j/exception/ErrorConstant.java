@@ -18,6 +18,6 @@ public interface ErrorConstant {
     /**
      * 参数异常
      */
-    ErrorCode PARAMETER_ERROR = ErrorCode.ofFail("参数异常");
+    ErrorCode PARAMETER_ERROR = ErrorCode.of(403, "参数异常");
 
 }

@@ -20,11 +20,11 @@ public class StandardResponse<T> extends DTO {
     /**
      * 错误码
      */
-    private String errCode;
+    private int code;
     /**
      * 错误信息
      */
-    private String errMessage;
+    private String msg;
     /**
      * 返回数据
      */
@@ -43,7 +43,7 @@ public class StandardResponse<T> extends DTO {
      * @return StandardResponse
      */
     public static <T> StandardResponse<T> ofSuccess() {
-        return of(null, true, "200", "success");
+        return of(null, true, 200, "success");
     }
 
     /**
@@ -54,7 +54,7 @@ public class StandardResponse<T> extends DTO {
      * @return StandardResponse
      */
     public static <T> StandardResponse<T> ofSuccess(T data) {
-        return of(data, true, "200", "success");
+        return of(data, true, 200, "success");
     }
 
     /**
@@ -65,7 +65,7 @@ public class StandardResponse<T> extends DTO {
      * @param <T>        返回数据类型
      * @return StandardResponse
      */
-    public static <T> StandardResponse<T> ofFail(String errCode, String errMessage) {
+    public static <T> StandardResponse<T> ofFail(int errCode, String errMessage) {
         return of(null, false, errCode, errMessage);
     }
 
@@ -78,7 +78,7 @@ public class StandardResponse<T> extends DTO {
      * @param <T>        返回数据类型
      * @return StandardResponse
      */
-    public static <T> StandardResponse<T> ofFail(T data, String errCode, String errMessage) {
+    public static <T> StandardResponse<T> ofFail(T data, int errCode, String errMessage) {
         return of(data, false, errCode, errMessage);
     }
 
@@ -115,12 +115,12 @@ public class StandardResponse<T> extends DTO {
      * @param <T>     返回数据类型
      * @return StandardResponse
      */
-    public static <T> StandardResponse<T> of(T data, boolean success, String code, String message) {
+    public static <T> StandardResponse<T> of(T data, boolean success, int code, String message) {
         StandardResponse<T> response = new StandardResponse<>();
         response.data = data;
         response.success = success;
-        response.errCode = code;
-        response.errMessage = message;
+        response.code = code;
+        response.msg = message;
         return response;
     }
 
@@ -132,20 +132,20 @@ public class StandardResponse<T> extends DTO {
         this.success = success;
     }
 
-    public String getErrCode() {
-        return errCode;
+    public int getCode() {
+        return code;
     }
 
-    public void setErrCode(String errCode) {
-        this.errCode = errCode;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public String getErrMessage() {
-        return errMessage;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setErrMessage(String errMessage) {
-        this.errMessage = errMessage;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
     public T getData() {

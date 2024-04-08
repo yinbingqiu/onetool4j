@@ -14,7 +14,7 @@ public class BizException extends SummaryException {
     /**
      * 错误码
      */
-    private String code;
+    private int code;
 
     /**
      * 构造器
@@ -23,7 +23,7 @@ public class BizException extends SummaryException {
      * @param errMessage 异常信息
      * @param e          异常
      */
-    private BizException(String errorCode, String errMessage, Throwable e) {
+    private BizException(int errorCode, String errMessage, Throwable e) {
         super(errMessage, e, new HashSet<>(Arrays.asList(BizException.class.getName())));
         this.code = errorCode;
     }
@@ -44,7 +44,7 @@ public class BizException extends SummaryException {
      * @param errorCode 异常码
      * @param e         异常
      */
-    public static BizException of(String errorCode, String errMessage, Throwable e) {
+    public static BizException of(int errorCode, String errMessage, Throwable e) {
         return new BizException(errorCode, errMessage, e);
     }
 
@@ -55,7 +55,7 @@ public class BizException extends SummaryException {
      * @param errMessage 异常信息
      * @return BizException
      */
-    public static BizException of(String errorCode, String errMessage) {
+    public static BizException of(int errorCode, String errMessage) {
         return new BizException(errorCode, errMessage, null);
     }
 
@@ -128,7 +128,7 @@ public class BizException extends SummaryException {
         return super.getMessage() + "[" + code + "]";
     }
 
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 }

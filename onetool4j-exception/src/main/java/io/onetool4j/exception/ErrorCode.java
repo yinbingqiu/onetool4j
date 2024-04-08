@@ -18,17 +18,17 @@ public final class ErrorCode {
     /**
      * 通用成功状态
      */
-    private static final String SUCCESS = "00000200";
+    private static final int SUCCESS = 200;
     /**
      * 通用异常状态
      */
-    private static final String SYSTEM_ERROR = "00000500";
+    private static final int SYSTEM_ERROR = 500;
     /**
      * 通用异常,规范：
      * 1. 总长度：8位，0-3位：系统标识，3-5位：模块标识，5-8位：异常标识
      * 2. 允许出现数字以及大写字母，其他字符不允许出现
      */
-    public String code;
+    public int code;
     /**
      * 描述
      */
@@ -40,9 +40,9 @@ public final class ErrorCode {
      * @param code    异常码
      * @param message 描述
      */
-    ErrorCode(String code, String message) {
+    ErrorCode(int code, String message) {
         assert message != null && !Objects.equals("", message.trim());
-        assert CODE_REGEX.matcher(code).matches();
+//        assert CODE_REGEX.matcher(code).matches();
 
         this.code = code;
         this.message = message;
@@ -55,7 +55,7 @@ public final class ErrorCode {
      * @param message 描述
      * @return ErrorCode
      */
-    public static ErrorCode of(String code, String message) {
+    public static ErrorCode of(int code, String message) {
         return new ErrorCode(code, message);
     }
 
@@ -102,7 +102,7 @@ public final class ErrorCode {
      *
      * @return ErrorCode
      */
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 
