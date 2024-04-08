@@ -59,7 +59,7 @@ public abstract class GenericHandler<REQ, REP> {
             } else {
                 log.error("handler exec unknown error ", e);
             }
-            return StandardResponse.ofFail(ErrorConstant.SYSTEM_ERROR);
+            return StandardResponse.ofFail(ErrorConstant.SYSTEM_ERROR.getCode(), e.getMessage());
         }
     }
 
