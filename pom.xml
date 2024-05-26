@@ -6,7 +6,7 @@
 
     <groupId>com.shizhuang.onetool4j</groupId>
     <artifactId>onetool4j</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
     <packaging>pom</packaging>
     <modules>
         <module>onetool4j-exception</module>
@@ -22,7 +22,7 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <onetool4j.version>1.1.5</onetool4j.version>
+        <onetool4j.version>1.1.6</onetool4j.version>
         <log4j2.version>2.22.1</log4j2.version>
     </properties>
 

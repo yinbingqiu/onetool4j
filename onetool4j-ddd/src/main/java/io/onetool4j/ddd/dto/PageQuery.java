@@ -36,4 +36,12 @@ public abstract class PageQuery {
     public int getPageNum() {
         return pageNum;
     }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public void setPageNum(int pageNum) {
+        this.pageNum = pageNum;
+    }
 }
